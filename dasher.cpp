@@ -14,7 +14,7 @@ int main(){
     //Nebula variables
     Texture2D nebula = LoadTexture("textures/12_nebula_spritesheet.png");
     //The order of parameter to the rectangle are: (x, y, width, height)
-    Rectangle nebRec{0.0, 0.0, nebula.width/8, nebula.height/8};
+    Rectangle nebRec{0, 0, nebula.width/8, nebula.height/8};
     Vector2 nebPos{WindowWidth, WindowHeight - nebRec.height};
 
     //Nebula x velocity (pixels/second)
