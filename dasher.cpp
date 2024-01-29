@@ -2,14 +2,25 @@
 
 int main(){
     //Window Dimensions
-    const int width{512}, height{380};
+    const int WindowWidth{512}, WindowHeight{380};
 
     //Initialize the window
-    InitWindow(width, height, "Dapper-Dasher");
+    InitWindow(WindowWidth, WindowHeight, "Dapper-Dasher");
 
     int velocity{0};
 
+
     //special variable defined by raylib. Is a compound data type witch has his own variables
+    //Nebula variables
+    Texture2D nebula = LoadTexture("textures/12_nebula_spritesheet.png");
+    //The order of parameter to the rectangle are: (x, y, width, height)
+    Rectangle nebRec{0.0, 0.0, nebula.width/8, nebula.height/8};
+    Vector2 nebPos{WindowWidth, WindowHeight - nebRec.height};
+
+    //Nebula x velocity (pixels/second)
+    int nebVel{-600};
+
+    //Scarfy variables
     Texture2D scarfy = LoadTexture("textures/scarfy.png");
     Rectangle scarfyRec;
     scarfyRec.width = scarfy.width/6;
@@ -17,8 +28,15 @@ int main(){
     scarfyRec.x = 0;
     scarfyRec.y = 0;
     Vector2 scarfyPos;
-    scarfyPos.x = width/2  - scarfyRec.width/2;
-    scarfyPos.y = height- scarfyRec.height;
+    scarfyPos.x = WindowWidth/2  - scarfyRec.width/2;
+    scarfyPos.y = WindowHeight- scarfyRec.height;
+
+    //Animation Frame
+    int frame{};
+
+    //Amount of time before update the animation frame
+    const float updateTime{1.0/12};
+    float runningTime{};
 
     //acceleration due to gravity (pixels/second)/second
     const int gravity{1'000}; 
@@ -40,13 +58,41 @@ int main(){
         //Delta time (time since last frame)
         const float dT{GetFrameTime()};
 
-        //update position
+        //Update nebula Position
+        nebPos.x += nebVel * dT;
+
+        //update scarfy position
         scarfyPos.y += velocity * dT;
 
+        //Checks if is in air to update frames
+        if(!isInAir){
+
+            //update running time
+            runningTime += dT;
+            if(runningTime >= updateTime) {
+
+                runningTime = 0;
+
+                //Update animation frame
+                scarfyRec.x = frame * scarfyRec.width;
+                frame++;
+                if(frame > 5) {
+                    frame = 0;
+                }
+
+            }
+        }
+
+        //Raylib function that draws the Sprite in the screen
+        //Draw Nebula
+        DrawTextureRec(nebula, nebRec, nebPos, WHITE);
+
+        //Draw Scarfy
         DrawTextureRec(scarfy, scarfyRec, scarfyPos, WHITE);
 
+
         //Perform Ground check
-        if(scarfyPos.y >= height - scarfyRec.height){
+        if(scarfyPos.y >= WindowHeight - scarfyRec.height){
             //Rectangle is on the ground
             velocity = 0;
             isInAir = false;
@@ -67,6 +113,7 @@ int main(){
     }
     //Before closing the window, unload the texture and shut down things properly
     UnloadTexture(scarfy);
+    UnloadTexture(nebula);
     //Raylib function that terminates the program corectly before stop debugging
     CloseWindow();
 }
